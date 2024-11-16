@@ -1,3 +1,5 @@
+const users = []; // Array to store usernames
+
 const requestHandler = (req, res) => {
     const url = req.url;
     const method = req.method;
@@ -19,11 +21,27 @@ const requestHandler = (req, res) => {
         req.on('end', () => {
             const parsedBody = Buffer.concat(body).toString();
             const user = parsedBody.split('=')[1];
+            users.push(user); // Add the user to the array
             console.log(`Received username: ${user}`);
         });
 
         res.statusCode = 302;
         res.setHeader('Location', '/');
+        return res.end();
+    }
+
+    if (url === '/users' && method === 'GET') {
+        res.setHeader('Content-Type', 'text/html');
+        res.write('<html>');
+        res.write('<head><title>Users</title></head>');
+        res.write('<body><h1>Users List</h1>');
+        res.write('<ul>');
+        users.forEach((user) => {
+            res.write(`<li>${user}</li>`); // Display each username in a list item
+        });
+        res.write('</ul>');
+        res.write('<a href="/">Go back to homepage</a>');
+        res.write('</body></html>');
         return res.end();
     }
 
